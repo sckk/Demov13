@@ -28,12 +28,15 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     private static final String TAG = "MainActivity";
     JavaCameraView javaCameraView;
     Mat mRgba;
+    public String face="";
+    public String eye="";
 
     BaseLoaderCallback mLoaderCallBack = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
             switch (status){
                 case BaseLoaderCallback.SUCCESS:{
+                    load_cascade();
                     javaCameraView.enableView();
                     break;
                 }
@@ -63,12 +66,14 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        javaCameraView = (JavaCameraView)findViewById(R.id.java_camera_view);
+
+
+        javaCameraView = (JavaCameraView)findViewById(R.id.javaCameraView);
         javaCameraView.setVisibility(SurfaceView.VISIBLE);
         javaCameraView.setCvCameraViewListener(this);
 
-
         //jni ornek !!
+       //
         //((TextView)findViewById(R.id.textView)).setText(NativeClass.getMessageFromJNI());
     }
     @Override
@@ -81,8 +86,10 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     @Override
     protected void onDestroy(){
         super.onDestroy();
+
         if(javaCameraView!=null)
             javaCameraView.disableView();
+
     }
     @Override
     protected void onResume(){
@@ -93,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         }
         else{
             Log.d(TAG,"nope");
-            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_2,this,mLoaderCallBack);
+            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_2_0,this,mLoaderCallBack);
         }
     }
 
@@ -110,43 +117,47 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         mRgba = inputFrame.rgba();
+        NativeClass.faceDetection(mRgba.getNativeObjAddr(),face,eye);
         return mRgba;
     }
-    /*
+
     public void load_cascade(){
         try {
-            InputStream is = getResources().openRawResource(;
+            InputStream is = getResources().openRawResource(R.raw.haarcascade_frontalface_alt);
             File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
-            File mCascadeFile = new File(cascadeDir, "lbpcascade_frontalface.xml");
-            FileOutputStream os = new FileOutputStream(mCascadeFile);
+            File faceCascadeFile = new File(cascadeDir, "haarcascade_frontalface_alt.xml");
+            FileOutputStream os = new FileOutputStream(faceCascadeFile);
 
-            byte[] buffer = new byte[4096];
+            byte[] buffer = new byte[3000000];
             int bytesRead;
             while ((bytesRead = is.read(buffer)) != -1) {
                 os.write(buffer, 0, bytesRead);
             }
             is.close();
             os.close();
+            face = faceCascadeFile.getAbsolutePath();
 
-            face_cascade = new CascadeClassifier(mCascadeFile.getAbsolutePath());
-            if(face_cascade.empty())
-            {
-                Log.v("MyActivity","--(!)Error loading A\n");
-                return;
+            InputStream is2 = getResources().openRawResource(R.raw.haarcascade_eye);
+            cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
+            File eyeCascadeFile = new File(cascadeDir, "haarcascade_eye.xml");
+            FileOutputStream os2 = new FileOutputStream(eyeCascadeFile);
+
+            byte[] buffer2 = new byte[3000000];
+            int bytesRead2;
+            while ((bytesRead2 = is2.read(buffer)) != -1) {
+                os2.write(buffer2, 0, bytesRead2);
             }
-            else
-            {
-                Log.v("MyActivity",
-                        "Loaded cascade classifier from " + mCascadeFile.getAbsolutePath());
-            }
+            is2.close();
+            os2.close();
+
+
+            eye = faceCascadeFile.getAbsolutePath();
+           // NativeClass.loadXmlFiles(face,eye);
+
         } catch (IOException e) {
             e.printStackTrace();
             Log.v("MyActivity", "Failed to load cascade. Exception thrown: " + e);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
-    */
+
 }
