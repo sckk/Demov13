@@ -4,9 +4,7 @@ import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Surface;
 import android.view.SurfaceView;
-import android.widget.TextView;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -18,7 +16,6 @@ import org.opencv.core.Mat;
 import org.opencv.objdetect.CascadeClassifier;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +23,8 @@ import java.io.InputStream;
 public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2{
 
     private static final String TAG = "MainActivity";
-    JavaCameraView javaCameraView;
+    CameraBridgeViewBase mOpenCvCameraView;
+
     Mat mRgba;
     public String face="";
     public String eye="";
@@ -37,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             switch (status){
                 case BaseLoaderCallback.SUCCESS:{
                     load_cascade();
-                    javaCameraView.enableView();
+                    mOpenCvCameraView.enableView();
                     break;
                 }
                 default:{
@@ -68,9 +66,9 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         setContentView(R.layout.activity_main);
 
 
-        javaCameraView = (JavaCameraView)findViewById(R.id.javaCameraView);
-        javaCameraView.setVisibility(SurfaceView.VISIBLE);
-        javaCameraView.setCvCameraViewListener(this);
+        mOpenCvCameraView = (JavaCameraView)findViewById(R.id.javaCameraView);
+        mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
+        mOpenCvCameraView.setCvCameraViewListener(this);
 
         //jni ornek !!
        //
@@ -79,16 +77,16 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     @Override
     protected void onPause(){
         super.onPause();
-        if(javaCameraView!=null);
-            javaCameraView.disableView();
+        if(mOpenCvCameraView !=null);
+            mOpenCvCameraView.disableView();
     }
 
     @Override
     protected void onDestroy(){
         super.onDestroy();
 
-        if(javaCameraView!=null)
-            javaCameraView.disableView();
+        if(mOpenCvCameraView !=null)
+            mOpenCvCameraView.disableView();
 
     }
     @Override
@@ -152,6 +150,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
 
             eye = faceCascadeFile.getAbsolutePath();
+
            // NativeClass.loadXmlFiles(face,eye);
 
         } catch (IOException e) {
