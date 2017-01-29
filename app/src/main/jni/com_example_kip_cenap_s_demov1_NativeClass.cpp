@@ -70,14 +70,13 @@ void detect(Mat& frame,String face, String eye) {
 
     std::vector<Rect> faces;
     Mat frame_gray;
-
     cvtColor(frame, frame_gray, CV_BGR2GRAY);
     equalizeHist(frame_gray, frame_gray);
 
     //-- Detect faces
     face_cascade.detectMultiScale(frame_gray, faces, 1.1, 2, 0 | CV_HAAR_SCALE_IMAGE, Size(30, 30));
 
-    for (size_t i = 0; i < faces.size(); i++) {
+    for (int i = 0; i < faces.size(); i++) {
 
         Point center(faces[i].x + faces[i].width * 0.5, faces[i].y + faces[i].height * 0.5);
 
@@ -94,15 +93,16 @@ void detect(Mat& frame,String face, String eye) {
         //-- In each face, detect eyes
         eyes_cascade.detectMultiScale(faceROI, eyes, 1.1, 2, 0 | CV_HAAR_SCALE_IMAGE, Size(30, 30));
 
-        for (size_t j = 0; j < eyes.size(); j++) {
+        for (int j = 0; j < eyes.size(); j++) {
+
+            Point center( faces[i].x + eyes[j].x + eyes[j].width*0.5, faces[i].y + eyes[j].y + eyes[j].height*0.5 );
+            int radius = cvRound( (eyes[j].width + eyes[j].height)*0.25 );
+            circle( frame, center, radius, Scalar( 255, 0, 0 ), 4, 8, 0 );
             /*
-            Point center(eyes[i].x + eyes[j].x + eyes[j].width * 0.5,
-                         eyes[i].y + eyes[j].y + eyes[j].height * 0.5);
-            int radius = cvRound((eyes[j].width + eyes[j].height) * 0.10);
-            circle(frame, center, radius, Scalar(255, 0, 0), 4, 8, 0);
+            cv::rectangle(frame,Point(eyes[j].x* 0.10,eyes[j].y* 0.10),Point(eyes[j].x+
+            eyes[j].width* 0.5, eyes[j].y+eyes[j].height* 0.5 ), Scalar(255, 0, 0),4, 8, 0);
             */
-            cv::rectangle(frame,Point(eyes[i].x* 0.5,eyes[i].y*0.5),Point(eyes[i].x+
-            eyes[i].width,eyes[i].y+eyes[i].height ), Scalar(255, 0, 0),4, 8, 0);
+
         }
 
     }
