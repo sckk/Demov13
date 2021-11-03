@@ -1,0 +1,57 @@
+
+
+entity DomainType {
+	id Long,
+	name String
+}
+
+entity Attribute {
+	id Long,
+	name String,
+    type String,
+    value String,
+    typeReference Long
+}
+
+// an ignored comment
+/** not an ignored comment */
+entity Tag {
+	id Long,
+	name String,
+	includeSubhierarchy Boolean
+}
+
+// an ignored comment
+/** not an ignored comment */
+entity DomainTypeToTag {
+	id Long
+}
+
+
+relationship OneToOne {
+	DomainType{parentId} to DomainType
+}
+ 
+relationship OneToMany {
+	DomainType{attributeList} to Attribute{domainTypeId}
+}
+
+// defining multiple OneToMany relationships with comments
+relationship OneToMany {
+	DomainType{domainTypeToTagList} to DomainTypeToTag{domainTypeList},
+}
+
+relationship OneToMany {
+	Tag{id} to DomainTypeToTag{tagList},
+}
+ 
+// Set pagination options
+paginate DomainType, Attribute with infinite-scroll
+paginate DomainType with pagination
+
+// Use Data Transfer Objects (DTO)
+dto * with mapstruct
+ 
+
+// Set an angular suffix
+// angularSuffix * with mySuffix
